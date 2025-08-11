@@ -1,0 +1,169 @@
+:root {
+    --page-bg: #f0f0f0;
+    --card-bg: #ffffff;
+    --accent: #6200ee;
+    --accent-foreground: #ffffff;
+    --text: #222222;
+    --radius: 8px;
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    --heading-height: 56px;
+    /* фиксированная высота для предотвращения layout shift */
+    --gap: 16px;
+    --container-padding-x: 20px;
+}
+
+/* Page */
+body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    background: var(--page-bg);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    color: var(--text);
+    padding: 24px;
+}
+
+/* Block */
+.content-block {
+    width: 80%;
+    max-width: 600px;
+    height: 40vh;
+    margin: 40px auto;
+    overflow-y: auto;
+    /* important: sticky будет работать relative to this root */
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
+}
+
+/* Element: step */
+.content-block__step {
+    padding: 0;
+    /* заголовок сам управляет внутренними отступами */
+    margin: 0;
+}
+
+/* Element: sentinel (used by JS observer) */
+.content-block__sentinel {
+    height: 1px;
+    /* небольшая "точка" для IntersectionObserver */
+    width: 1px;
+    margin: 0;
+    padding: 0;
+    pointer-events: none;
+    opacity: 0;
+}
+
+/* Element: heading */
+.content-block__heading {
+    position: -webkit-sticky;
+    position: sticky;
+    top: env(safe-area-inset-top, 0);
+    /* safe area for iOS */
+    height: var(--heading-height);
+    /* фиксируем высоту, чтобы не было смещения */
+    display: flex;
+    align-items: center;
+    padding: 0 var(--container-padding-x);
+    margin: 0;
+    background: var(--accent);
+    color: var(--accent-foreground);
+    z-index: 2;
+    box-sizing: border-box;
+    transition: box-shadow .18s ease, transform .18s ease;
+    will-change: transform, box-shadow;
+    /* accessible text scale: ensure contrast is good */
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+/* Modifier: when heading is stuck (added by JS) */
+.content-block__heading--stuck {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    /* визуально "сжимаем" заголовок без изменения layout через transform */
+    transform: scale(0.985);
+}
+
+/* Element: paragraph / text */
+.content-block__text {
+    padding: calc(var(--gap) / 2) var(--container-padding-x) var(--gap);
+    margin: 0;
+    line-height: 1.55;
+    color: var(--text);
+    font-size: 0.95rem;
+}
+
+/* Focus for keyboard users */
+.content-block__heading:focus {
+    outline: none;
+}
+
+.content-block__heading:focus-visible {
+    outline: 3px solid rgba(255, 255, 255, 0.18);
+    outline-offset: 2px;
+}
+
+/* Scrollbar styling (non-critical; graceful fallback) */
+.content-block::-webkit-scrollbar {
+    width: 12px;
+}
+
+.content-block::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.12);
+    border: 3px solid transparent;
+    background-clip: padding-box;
+}
+
+/* Print: раскрыть контент */
+@media print {
+    .content-block {
+        height: auto;
+        overflow: visible;
+        box-shadow: none;
+        border-radius: 0;
+    }
+
+    .content-block__heading {
+        position: static;
+        box-shadow: none;
+        transform: none;
+    }
+}
+
+/* Reduce motion for users who requested it */
+@media (prefers-reduced-motion: reduce) {
+
+    .content-block__heading,
+    .content-block__heading--stuck {
+        transition: none;
+        transform: none;
+    }
+}
+
+/* High contrast / forced colors (Win) */
+@media (forced-colors: active) {
+    .content-block__heading {
+        forced-color-adjust: none;
+        background: ButtonFace;
+        color: ButtonText;
+    }
+}
+
+/* Optional small-screen tweak */
+@media (max-width: 420px) {
+    :root {
+        --heading-height: 52px;
+    }
+
+    .content-block {
+        width: 96%;
+        height: 50vh;
+    }
+
+    .content-block__text {
+        font-size: 0.98rem;
+    }
+}
